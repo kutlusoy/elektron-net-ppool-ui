@@ -1,0 +1,32 @@
+<ng-container *ngIf="balance$ | async as balance; else pplnsBalanceLoading">
+    <div class="card snapshot-card">
+        <div class="snapshot-header">
+            <div>
+                <h4 class="m-0">PPLNS Balance</h4>
+                <span>Your share of pool rewards, paid out once it reaches the pool's minimum threshold.</span>
+            </div>
+        </div>
+        <div class="snapshot-grid">
+            <div class="snapshot-metric is-primary">
+                <span>Pending Balance</span>
+                <strong>{{balance.pendingSats | number}} sats</strong>
+                <small>Not yet included in a payout batch</small>
+            </div>
+            <div class="snapshot-metric">
+                <span>Total Paid</span>
+                <strong>{{balance.totalPaidSats | number}} sats</strong>
+                <small>All-time, across confirmed and sent payouts</small>
+            </div>
+            <div class="snapshot-metric">
+                <span>Last Payout</span>
+                <strong>{{balance.lastPayoutAt ? (balance.lastPayoutAt | dateAgo:true) : 'None yet'}}</strong>
+                <small>Most recent batch that included this address</small>
+            </div>
+        </div>
+    </div>
+</ng-container>
+<ng-template #pplnsBalanceLoading>
+    <div class="card snapshot-card">
+        <p-skeleton width="100%" height="8rem"></p-skeleton>
+    </div>
+</ng-template>

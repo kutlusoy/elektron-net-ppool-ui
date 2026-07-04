@@ -6,7 +6,11 @@ interface RuntimeConfig {
   API_URL?: string;
   STRATUM_URL?: string;
   SECURE_STRATUM_URL?: string;
+  BLOCK_EXPLORER_TX_URL?: string;
+  SOLO_POOL_URL?: string;
 }
+
+const DEFAULT_SOLO_POOL_URL = 'https://github.com/kutlusoy/elektron-net-pool';
 
 declare global {
   interface Window {
@@ -51,6 +55,34 @@ export class AppConfigService {
     }
 
     return this.resolveSecureStratumUrl(environment.SECURE_STRATUM_URL);
+  }
+
+  // Optional. Empty means the UI renders the raw txid as text instead of a
+  // link. Format: a URL template containing the literal string "{txid}",
+  // e.g. "https://explorer.elektron-net.org/tx/{txid}".
+  public blockExplorerTxUrl(txid: string): string | null {
+    const template = this.hasRuntimeValue('BLOCK_EXPLORER_TX_URL')
+      ? runtimeConfig()?.BLOCK_EXPLORER_TX_URL
+      : (environment as { BLOCK_EXPLORER_TX_URL?: string }).BLOCK_EXPLORER_TX_URL;
+
+    const trimmed = (template ?? '').trim();
+    if (trimmed.length === 0) {
+      return null;
+    }
+
+    return trimmed.replace('{txid}', txid);
+  }
+
+  public get soloPoolUrl(): string {
+    if (this.hasRuntimeValue('SOLO_POOL_URL')) {
+      const configured = (runtimeConfig()?.SOLO_POOL_URL ?? '').trim();
+      if (configured.length > 0) {
+        return configured;
+      }
+    }
+
+    const fromEnvironment = (environment as { SOLO_POOL_URL?: string }).SOLO_POOL_URL ?? '';
+    return fromEnvironment.trim().length > 0 ? fromEnvironment.trim() : DEFAULT_SOLO_POOL_URL;
   }
 
   private hasRuntimeValue(key: keyof RuntimeConfig): boolean {

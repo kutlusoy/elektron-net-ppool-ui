@@ -15,6 +15,16 @@ write_runtime_config() {
 
     if [ "${PUBLIC_POOL_STRATUM_URL+x}" ]; then
         config="${config}${separator}\"STRATUM_URL\":\"$(js_escape "$PUBLIC_POOL_STRATUM_URL")\""
+        separator=","
+    fi
+
+    if [ "${PUBLIC_POOL_BLOCK_EXPLORER_TX_URL+x}" ]; then
+        config="${config}${separator}\"BLOCK_EXPLORER_TX_URL\":\"$(js_escape "$PUBLIC_POOL_BLOCK_EXPLORER_TX_URL")\""
+        separator=","
+    fi
+
+    if [ "${PUBLIC_POOL_SOLO_POOL_URL+x}" ]; then
+        config="${config}${separator}\"SOLO_POOL_URL\":\"$(js_escape "$PUBLIC_POOL_SOLO_POOL_URL")\""
     fi
 
     config="${config}}"

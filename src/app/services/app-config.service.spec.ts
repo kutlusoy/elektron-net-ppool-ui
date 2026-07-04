@@ -63,4 +63,36 @@ describe('AppConfigService', () => {
 
     expect(service.apiUrl).toBe('https://example.com');
   });
+
+  it('renders no block explorer link when BLOCK_EXPLORER_TX_URL is unset', () => {
+    const service = new AppConfigService();
+
+    expect(service.blockExplorerTxUrl('abc123')).toBeNull();
+  });
+
+  it('substitutes {txid} into a configured BLOCK_EXPLORER_TX_URL', () => {
+    window.__PUBLIC_POOL_CONFIG__ = {
+      BLOCK_EXPLORER_TX_URL: 'https://explorer.example.com/tx/{txid}'
+    } as any;
+
+    const service = new AppConfigService();
+
+    expect(service.blockExplorerTxUrl('abc123')).toBe('https://explorer.example.com/tx/abc123');
+  });
+
+  it('falls back to the elektron-net-pool repo when SOLO_POOL_URL is unset', () => {
+    const service = new AppConfigService();
+
+    expect(service.soloPoolUrl).toBe('https://github.com/kutlusoy/elektron-net-pool');
+  });
+
+  it('uses a configured runtime SOLO_POOL_URL', () => {
+    window.__PUBLIC_POOL_CONFIG__ = {
+      SOLO_POOL_URL: 'https://solo.example.com'
+    } as any;
+
+    const service = new AppConfigService();
+
+    expect(service.soloPoolUrl).toBe('https://solo.example.com');
+  });
 });

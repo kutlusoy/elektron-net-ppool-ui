@@ -18,6 +18,14 @@ export function onRequestGet(context) {
     config.STRATUM_URL = context.env.PUBLIC_POOL_STRATUM_URL;
   }
 
+  if (hasOwn(context.env, 'ELEKTRON_POOL_BLOCK_EXPLORER_TX_URL')) {
+    config.BLOCK_EXPLORER_TX_URL = context.env.ELEKTRON_POOL_BLOCK_EXPLORER_TX_URL;
+  }
+
+  if (hasOwn(context.env, 'ELEKTRON_POOL_SOLO_POOL_URL')) {
+    config.SOLO_POOL_URL = context.env.ELEKTRON_POOL_SOLO_POOL_URL;
+  }
+
   return new Response(
     `window.__ELEKTRON_POOL_CONFIG__ = ${JSON.stringify(config)};\n`,
     {

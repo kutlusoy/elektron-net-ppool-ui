@@ -19,6 +19,10 @@
             </div>
         </div>
 
+        <div class="col-12">
+            <app-pplns-miner-status [address]="address"></app-pplns-miner-status>
+        </div>
+
         <div class="col-12" *ngIf="networkInfo$ | async as networkInfo">
             <div class="card snapshot-card">
                 <div class="snapshot-header">
@@ -107,6 +111,10 @@
                     </ng-template>
                 </p-table>
             </div>
+        </div>
+
+        <div class="col-12">
+            <app-pplns-payout-history [address]="address"></app-pplns-payout-history>
         </div>
 
         <div class="col-12">

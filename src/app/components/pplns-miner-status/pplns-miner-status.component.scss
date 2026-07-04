@@ -1,0 +1,57 @@
+.snapshot-card {
+    padding: 1.35rem 1.5rem;
+}
+
+.snapshot-header {
+    border-bottom: 1px solid var(--surface-border);
+    margin-bottom: 1.1rem;
+    padding-bottom: 1rem;
+}
+
+.snapshot-header h4 {
+    color: var(--text-color);
+    font-size: 1.35rem;
+    font-weight: 600;
+    margin: 0.2rem 0 0;
+}
+
+.snapshot-header span {
+    color: var(--text-color-secondary);
+}
+
+.snapshot-grid {
+    display: grid;
+    gap: 1.25rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.snapshot-metric {
+    min-width: 0;
+}
+
+.snapshot-metric span,
+.snapshot-metric small {
+    color: var(--text-color-secondary);
+    display: block;
+    font-size: 0.82rem;
+}
+
+.snapshot-metric strong {
+    color: var(--text-color);
+    display: block;
+    font-size: 1.35rem;
+    font-weight: 600;
+    margin: 0.45rem 0 0.25rem;
+    overflow-wrap: anywhere;
+}
+
+.snapshot-metric.is-primary strong {
+    color: var(--primary-color);
+    font-size: 1.65rem;
+}
+
+@media screen and (max-width: 640px) {
+    .snapshot-grid {
+        grid-template-columns: 1fr;
+    }
+}

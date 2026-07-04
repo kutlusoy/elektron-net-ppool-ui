@@ -21,6 +21,10 @@ import { DateAgoPipe } from './pipes/date-ago.pipe';
 import { HashSuffixPipe } from './pipes/hash-suffix.pipe';
 import { NumberSuffixPipe } from './pipes/number-suffix.pipe';
 import { AverageTimeToBlockPipe } from './pipes/average-time-to-block.pipe';
+import { PplnsPoolInfoComponent } from './components/pplns-pool-info/pplns-pool-info.component';
+import { PplnsMinerStatusComponent } from './components/pplns-miner-status/pplns-miner-status.component';
+import { PplnsPayoutHistoryComponent } from './components/pplns-payout-history/pplns-payout-history.component';
+import { PoolModeBannerComponent } from './components/pool-mode-banner/pool-mode-banner.component';
 
 
 
@@ -36,7 +40,11 @@ import { AverageTimeToBlockPipe } from './pipes/average-time-to-block.pipe';
     BackgroundParticlesComponent,
     HashSuffixPipe,
     SettingsComponent,
-    UserAgentLinkComponent
+    UserAgentLinkComponent,
+    PplnsPoolInfoComponent,
+    PplnsMinerStatusComponent,
+    PplnsPayoutHistoryComponent,
+    PoolModeBannerComponent
   ],
   imports: [
     CommonModule,

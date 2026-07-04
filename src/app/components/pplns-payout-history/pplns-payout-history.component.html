@@ -1,0 +1,49 @@
+<div class="card section-card">
+    <div class="section-header">
+        <div>
+            <h4>PPLNS Payout History</h4>
+            <span>Batched payouts to this address, most recent first.</span>
+        </div>
+    </div>
+    <ng-container *ngIf="history$ | async as history; else pplnsHistoryLoading">
+        <p-table [value]="history" styleClass="compact-table" [paginator]="history.length > 10" [rows]="10"
+            [showCurrentPageReport]="true" currentPageReportTemplate="{first} - {last} of {totalRecords}">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th class="numeric-cell">Block</th>
+                    <th class="numeric-cell">Amount</th>
+                    <th>Transaction</th>
+                    <th>Status</th>
+                    <th class="numeric-cell">When</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-payout>
+                <tr>
+                    <td data-label="Block" class="numeric-cell">{{payout.blockHeight}}</td>
+                    <td data-label="Amount" class="numeric-cell">{{payout.amountSats | number}} sats</td>
+                    <td data-label="Transaction">
+                        <ng-container *ngIf="payout.txid; else noTxid">
+                            <a *ngIf="explorerUrl(payout.txid) as url; else txidText" [href]="url" target="_blank"
+                                rel="noopener" class="txid-link">{{payout.txid | slice:0:10}}…</a>
+                            <ng-template #txidText>{{payout.txid | slice:0:10}}…</ng-template>
+                        </ng-container>
+                        <ng-template #noTxid>—</ng-template>
+                    </td>
+                    <td data-label="Status">
+                        <span class="payout-status" [ngClass]="'status-' + payout.status.toLowerCase()">{{payout.status}}</span>
+                    </td>
+                    <td data-label="When" class="numeric-cell">{{payout.timestamp | dateAgo:true}}</td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="5" class="text-center">No payouts yet — balance accrues until the pool's minimum
+                        payout threshold is reached.</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </ng-container>
+    <ng-template #pplnsHistoryLoading>
+        <p-skeleton width="100%" height="8rem"></p-skeleton>
+    </ng-template>
+</div>

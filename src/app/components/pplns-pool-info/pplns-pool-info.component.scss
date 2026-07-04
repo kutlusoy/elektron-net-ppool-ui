@@ -1,0 +1,58 @@
+.pplns-info-card {
+    padding: 1.35rem 1.5rem;
+}
+
+.pplns-info-header {
+    border-bottom: 1px solid var(--surface-border);
+    margin-bottom: 1.1rem;
+    padding-bottom: 1rem;
+}
+
+.pplns-info-header h4 {
+    color: var(--text-color);
+    font-size: 1.35rem;
+    font-weight: 600;
+    margin: 0.2rem 0 0;
+}
+
+.pplns-info-header span {
+    color: var(--text-color-secondary);
+}
+
+.pplns-info-grid {
+    display: grid;
+    gap: 1.25rem;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.pplns-info-metric {
+    min-width: 0;
+}
+
+.pplns-info-metric span,
+.pplns-info-metric small {
+    color: var(--text-color-secondary);
+    display: block;
+    font-size: 0.82rem;
+}
+
+.pplns-info-metric strong {
+    color: var(--primary-color);
+    display: block;
+    font-size: 1.35rem;
+    font-weight: 600;
+    margin: 0.45rem 0 0.25rem;
+    overflow-wrap: anywhere;
+}
+
+@media screen and (max-width: 960px) {
+    .pplns-info-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media screen and (max-width: 640px) {
+    .pplns-info-grid {
+        grid-template-columns: 1fr;
+    }
+}
