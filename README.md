@@ -135,6 +135,8 @@ Available variables:
   backend isn't reachable from inside this container's own Docker network.
 * `PUBLIC_POOL_STRATUM_URL`: Stratum `host:port` shown to miners in the UI.
   Defaults to `<page's own hostname>:3333` if unset.
+* `PUBLIC_POOL_SECURE_STRATUM_URL`: same, for the TLS Stratum listener.
+  Defaults to `<page's own hostname>:4333` if unset.
 * `DOMAIN`: website domain (default: `localhost`)
 * `LOGLEVEL`: loglevel in stdout (default: `INFO`)
 * `LOGFORMAT`: log format in stdout (default: `json`)

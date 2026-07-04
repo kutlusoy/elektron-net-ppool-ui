@@ -18,6 +18,11 @@ write_runtime_config() {
         separator=","
     fi
 
+    if [ "${PUBLIC_POOL_SECURE_STRATUM_URL+x}" ]; then
+        config="${config}${separator}\"SECURE_STRATUM_URL\":\"$(js_escape "$PUBLIC_POOL_SECURE_STRATUM_URL")\""
+        separator=","
+    fi
+
     if [ "${PUBLIC_POOL_BLOCK_EXPLORER_TX_URL+x}" ]; then
         config="${config}${separator}\"BLOCK_EXPLORER_TX_URL\":\"$(js_escape "$PUBLIC_POOL_BLOCK_EXPLORER_TX_URL")\""
         separator=","
