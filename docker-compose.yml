@@ -1,0 +1,61 @@
+# Complete package: builds and runs BOTH the elektron-net-ppool backend and
+# this elektron-net-ppool-ui frontend together with a single
+# `docker compose up -d --build`. The UI's Caddy server reverse-proxies
+# /api/* to the backend container over the network Compose creates for this
+# file (container name = Compose service name, always resolvable) via
+# API_UPSTREAM -- the browser only ever talks to the UI's own origin, so
+# there's no CORS to configure and no backend host/IP to look up by hand.
+#
+# Assumes both repos are cloned as sibling directories:
+#   some-folder/
+#     elektron-net-ppool/       <- backend repo; set up its .env first (see
+#                                  that repo's README) before starting this
+#     elektron-net-ppool-ui/    <- this repo; run `docker compose up -d --build` from here
+#
+# If your backend repo lives somewhere else, point ELEKTRON_PPOOL_PATH at it:
+#   ELEKTRON_PPOOL_PATH=/path/to/elektron-net-ppool docker compose up -d --build
+#
+# Only the UI's port (8080) and the Stratum port (3333, for miners) are
+# published to the host by default; the backend's API port (3334) stays
+# internal-only since only the UI container needs to reach it. Stratum is
+# bound to 0.0.0.0 (miners must reach it), the backend API stays on
+# 127.0.0.1 (nothing outside the UI container needs it directly) -- widen
+# that per elektron-net-ppool's README "Exposing the pool to the internet"
+# section if you need direct API access from elsewhere.
+#
+# The 3333/3334 numbers below must match STRATUM_PORT/API_PORT in the
+# backend's own .env (both default to these values in .env.example) --
+# change both places together if you've customized them there.
+
+services:
+  elektron-ppool:
+    container_name: elektron-ppool
+    build:
+      context: ${ELEKTRON_PPOOL_PATH:-../elektron-net-ppool}
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "3333:3333/tcp"
+      - "127.0.0.1:3334:3334/tcp"
+    volumes:
+      - "${ELEKTRON_PPOOL_PATH:-../elektron-net-ppool}/.env:/elektron-pool/.env:ro"
+      - "./ppool-DB:/elektron-pool/DB"
+    environment:
+      - NODE_ENV=production
+
+  elektron-ppool-ui:
+    container_name: elektron-ppool-ui
+    build:
+      context: .
+    restart: unless-stopped
+    depends_on:
+      - elektron-ppool
+    ports:
+      - "8080:80"
+    environment:
+      - API_UPSTREAM=elektron-ppool:3334
+      # Shown to miners as the Stratum connection info -- change "localhost"
+      # to this machine's real LAN IP/hostname if miners connect from other
+      # devices on your network (they can't resolve "localhost" as you).
+      - PUBLIC_POOL_STRATUM_URL=localhost:3333

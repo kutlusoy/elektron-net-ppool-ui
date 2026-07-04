@@ -29,7 +29,6 @@ EXPOSE 80
 WORKDIR /var/www/html
 
 COPY --from=build /build/dist/elektron-net-pool-ui .
-COPY docker/Caddyfile.tpl /etc/Caddyfile.tpl
 COPY docker/entrypoint.sh /entrypoint.sh
 
 CMD ["/bin/sh", "/entrypoint.sh"]
