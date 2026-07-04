@@ -1,12 +1,37 @@
-# Elektron Net Pool UI
+# Elektron Net PPLNS Pool UI
 
-Angular frontend for the [elektron-net-pool](https://github.com/kutlusoy/elektron-net-pool)
-Stratum V1 mining server. Forked from `public-pool-ui` and rebranded for
+Angular frontend for [elektron-net-ppool](https://github.com/kutlusoy/elektron-net-ppool),
+the PPLNS (shared) Stratum V1 mining server for Elektron Net. Forked from
+[elektron-net-pool-ui](https://github.com/kutlusoy/elektron-net-pool-ui) (the
+solo pool's UI), itself forked from `public-pool-ui` and rebranded for
 Elektron Net.
+
+This fork adds PPLNS-specific views on top of the existing dashboard:
+
+- **Pool-wide PPLNS info** (splash page): current PPLNS window size, active
+  miner count and difficulty contributed in the window, pool fee, and
+  minimum payout threshold (`app-pplns-pool-info`, backed by
+  `GET /api/pool/pplns-window-stats` and `GET /api/pool/fee-info`).
+- **Pending balance** (per-address dashboard): the connected miner's unpaid
+  PPLNS balance, total paid to date, and last payout time
+  (`app-pplns-miner-status`, backed by `GET /api/miner/:address/pending-balance`).
+- **Payout history** (per-address dashboard): a table of batched payouts —
+  block height, amount, transaction id, status (`PENDING`/`SENT`/`CONFIRMED`)
+  (`app-pplns-payout-history`, backed by `GET /api/miner/:address/payout-history`).
+- **Solo vs. PPLNS banner**: since both pools run in parallel, a banner
+  makes clear which one is being viewed and links to the other
+  (`app-pool-mode-banner`). The link target is configurable via
+  `SOLO_POOL_URL` in the runtime config (see below) — the domain/port split
+  between the two pools is an operator decision (concept doc §8.5), not
+  hardcoded.
+
+All four PPLNS endpoints are read-only; no new write paths or credentials
+are introduced in the UI. Everything else (worker list, hashrate charts,
+network stats, connection instructions) is unchanged from the solo pool UI.
 
 ## Dependencies
 
-Requires [elektron-net-pool](https://github.com/kutlusoy/elektron-net-pool)
+Requires [elektron-net-ppool](https://github.com/kutlusoy/elektron-net-ppool)
 to be running.
 
 ## Development server
@@ -54,3 +79,13 @@ Available variables:
 * `DOMAIN`: website domain (default: `localhost`)
 * `LOGLEVEL`: loglevel in stdout (default: `INFO`)
 * `LOGFORMAT`: log format in stdout (default: `json`)
+* `PUBLIC_POOL_BLOCK_EXPLORER_TX_URL`: optional URL template containing the
+  literal string `{txid}`, used to link payout transaction ids in the PPLNS
+  payout history table to a block explorer. Empty renders the txid as plain
+  text.
+* `PUBLIC_POOL_SOLO_POOL_URL`: optional URL for the solo-pool switcher
+  banner. Defaults to the `elektron-net-pool` GitHub repo if unset.
+
+(The Cloudflare Pages Functions deployment in `functions/assets/runtime-config.js.ts`
+uses the equivalent `ELEKTRON_POOL_BLOCK_EXPLORER_TX_URL` /
+`ELEKTRON_POOL_SOLO_POOL_URL` variable names.)

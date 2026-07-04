@@ -2,20 +2,24 @@
     <div class="grid justify-content-center">
 
         <div class="col-12">
+            <app-pool-mode-banner></app-pool-mode-banner>
+        </div>
+
+        <div class="col-12">
             <div class="card hero-card">
                 <div class="grid align-items-center">
                     <div class="col-12 lg:col-5">
                         <div class="hero-brand">
                             <img class="hero-logo" src="assets/layout/images/logo.svg" alt="Elektron Net Pool logo">
                             <div class="min-w-0">
-                                <h1 class="text-900 font-normal m-0">Elektron Pool</h1>
-                                <code>Open Source Solo Mining Pool for Elektron Net</code>
+                                <h1 class="text-900 font-normal m-0">Elektron PPLNS Pool</h1>
+                                <code>Open Source Shared (PPLNS) Mining Pool for Elektron Net</code>
                                 <div class="hero-footer">
-                                    <span><b>NO FEES</b></span>
-                                    <span>No second best.</span>
+                                    <span><b>Shared Rewards</b></span>
+                                    <span>Steadier payouts than solo mining.</span>
                                 </div>
                                 <div class="hero-links">
-                                    <a href="https://github.com/kutlusoy/elektron-net-pool" target="_blank">
+                                    <a href="https://github.com/kutlusoy/elektron-net-ppool" target="_blank">
                                         <i class="pi pi-github"></i>
                                     </a>
                                 </div>
@@ -76,6 +80,10 @@
                     </div>
                 </div>
             </div>
+        </div>
+
+        <div class="col-12">
+            <app-pplns-pool-info></app-pplns-pool-info>
         </div>
 
         <div class="col-12" *ngIf="accounting$ | async as accounting">

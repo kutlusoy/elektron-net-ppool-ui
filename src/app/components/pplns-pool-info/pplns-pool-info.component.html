@@ -1,0 +1,38 @@
+<ng-container *ngIf="info$ | async as info; else pplnsInfoLoading">
+    <div class="card pplns-info-card">
+        <div class="pplns-info-header">
+            <div>
+                <h4 class="m-0">PPLNS Reward Sharing</h4>
+                <span class="text-500">This is a shared (PPLNS) pool — block rewards are split among recent
+                    contributors, not paid entirely to whoever finds the block.</span>
+            </div>
+        </div>
+        <div class="pplns-info-grid">
+            <div class="pplns-info-metric">
+                <span>PPLNS Window</span>
+                <strong>{{info.windowMinutes}} min</strong>
+                <small>Shares older than this don't count towards the next block's split</small>
+            </div>
+            <div class="pplns-info-metric">
+                <span>Active Miners in Window</span>
+                <strong>{{info.activeMinerCount | number}}</strong>
+                <small>{{info.totalDifficultyInWindow | number:'1.0-0'}} total difficulty contributed</small>
+            </div>
+            <div class="pplns-info-metric">
+                <span>Pool Fee</span>
+                <strong>{{info.feePercent}}%</strong>
+                <small>Deducted by accounting, never as an extra coinbase output</small>
+            </div>
+            <div class="pplns-info-metric">
+                <span>Minimum Payout</span>
+                <strong>{{info.minPayoutThresholdSats | number}} sats</strong>
+                <small>Paid out every {{info.payoutIntervalMinutes}} min once reached</small>
+            </div>
+        </div>
+    </div>
+</ng-container>
+<ng-template #pplnsInfoLoading>
+    <div class="card pplns-info-card">
+        <p-skeleton width="100%" height="8rem"></p-skeleton>
+    </div>
+</ng-template>
