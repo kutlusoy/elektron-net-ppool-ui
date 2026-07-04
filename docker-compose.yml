@@ -55,7 +55,10 @@ services:
       - "8080:80"
     environment:
       - API_UPSTREAM=elektron-ppool:3334
-      # Shown to miners as the Stratum connection info -- change "localhost"
-      # to this machine's real LAN IP/hostname if miners connect from other
-      # devices on your network (they can't resolve "localhost" as you).
-      - PUBLIC_POOL_STRATUM_URL=localhost:3333
+      # PUBLIC_POOL_STRATUM_URL is deliberately left unset here: the UI's
+      # compiled default (environments/environment.prod.ts) is now empty,
+      # which makes it fall back to "<the hostname the browser actually
+      # used>:3333" -- correct whether you open it as localhost, 127.0.0.1,
+      # or this machine's LAN IP from another device, with no config needed.
+      # Set PUBLIC_POOL_STRATUM_URL explicitly only if you need to override
+      # that (e.g. a real domain name in front of a reverse proxy).
