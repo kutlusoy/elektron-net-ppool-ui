@@ -68,14 +68,73 @@ $ pm2 serve --spa dist/elektron-net-pool-ui/ 3335 --name ui
 
 ## Docker
 
-```bash
-$ docker build -t elektron-net-pool-ui .
-$ docker run --name elektron-net-pool-ui --rm -p 8080:80 elektron-net-pool-ui
+### Option A: complete package (backend + UI together, recommended)
+
+`docker-compose.yml` in this repo builds and runs **both**
+[elektron-net-ppool](https://github.com/kutlusoy/elektron-net-ppool) (the
+backend) and this UI together, on one Docker network, with a single command
+— no manual IP/hostname lookups, no CORS configuration. The UI's Caddy
+server reverse-proxies `/api/*` straight to the backend container.
+
+Clone both repos as sibling directories and set up the backend's `.env`
+first (see that repo's README):
+
+```
+some-folder/
+  elektron-net-ppool/       <- backend repo, .env already configured
+  elektron-net-ppool-ui/    <- this repo
 ```
 
-From Docker commands, website will be accessible on [http://localhost:8080](http://localhost:8080). By default Caddy server listen on port 80, but we bind it to port 8080 which allows you to launch image without root permissions.
+Then, from inside `elektron-net-ppool-ui/`:
+
+```bash
+docker compose up -d --build
+```
+
+Open [http://localhost:8080](http://localhost:8080) — the dashboard, PPLNS
+views, and miner login now work without any further configuration, since the
+UI reaches the backend internally via the `API_UPSTREAM` variable that's
+already wired up in the compose file.
+
+If your backend repo isn't a sibling directory, point at it explicitly:
+
+```bash
+ELEKTRON_PPOOL_PATH=/path/to/elektron-net-ppool docker compose up -d --build
+```
+
+The Stratum port (`3333`) is published so miners can connect; the backend's
+API port (`3334`) stays internal-only (only the UI container needs it). See
+`docker-compose.yml`'s own comments for the exact port/volume wiring, and
+elektron-net-ppool's README ("Exposing the pool to the internet") before
+opening anything to the internet.
+
+### Option B: UI only (backend hosted/reachable separately)
+
+Use this if the backend already runs elsewhere (a different machine, a
+different Docker Compose stack, a managed host) and you just need this UI
+pointed at it via an absolute URL instead of Compose's internal networking.
+
+```bash
+$ docker build -t elektron-net-pool-ui .
+$ docker run --name elektron-net-pool-ui --rm -p 8080:80 \
+    -e PUBLIC_POOL_API_URL=http://your-backend-host:3334 \
+    elektron-net-pool-ui
+```
+
+Website will be accessible on [http://localhost:8080](http://localhost:8080).
+By default Caddy server listens on port 80, but we bind it to port 8080 which
+allows you to launch the image without root permissions.
 
 Available variables:
+* `API_UPSTREAM`: backend `host:port` to reverse-proxy `/api/*` to internally
+  (e.g. `elektron-ppool:3334`, a container name reachable on the same Docker
+  network) — this is what Option A sets for you. Mutually exclusive in
+  practice with `PUBLIC_POOL_API_URL`: set one or the other, not both.
+* `PUBLIC_POOL_API_URL`: absolute backend URL the browser calls directly
+  (e.g. `http://your-backend-host:3334`). Use this (Option B) when the
+  backend isn't reachable from inside this container's own Docker network.
+* `PUBLIC_POOL_STRATUM_URL`: Stratum `host:port` shown to miners in the UI.
+  Defaults to `<page's own hostname>:3333` if unset.
 * `DOMAIN`: website domain (default: `localhost`)
 * `LOGLEVEL`: loglevel in stdout (default: `INFO`)
 * `LOGFORMAT`: log format in stdout (default: `json`)

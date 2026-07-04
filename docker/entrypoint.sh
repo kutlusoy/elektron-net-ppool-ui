@@ -34,17 +34,60 @@ window.__PUBLIC_POOL_CONFIG__ = ${config};
 EOF
 }
 
-if [ ! -e "/etc/Caddyfile" ]; then
-    sed -i "s#%%LOGLEVEL%%#${LOGLEVEL:-INFO}#g" /etc/Caddyfile.tpl
-    sed -i "s#%%LOGFORMAT%%#${LOGFORMAT:-json}#g" /etc/Caddyfile.tpl
-    mv /etc/Caddyfile.tpl /etc/Caddyfile
+# Generates /etc/Caddyfile from scratch every start (unless the user bind-
+# mounted their own, see below). Building it with a heredoc instead of the
+# old sed-templated Caddyfile.tpl is what makes the API_UPSTREAM block below
+# conditional without fragile multi-line sed substitution.
+write_caddyfile() {
+    cat > /etc/Caddyfile <<EOF
+:80 {
+    root * /var/www/html
+EOF
+
+    # Complete-package mode: reverse-proxy /api/* to the backend container
+    # over the Docker network (e.g. API_UPSTREAM=elektron-ppool:3334), so the
+    # browser only ever talks to this one origin -- no CORS, no need to know
+    # the backend's host/IP from outside. Leave unset (the old behaviour) to
+    # keep calling an absolute PUBLIC_POOL_API_URL instead, e.g. for a
+    # frontend and backend hosted on entirely separate machines/domains.
+    # Deliberately "handle" (not "handle_path"): the backend's own routes are
+    # already prefixed with /api (NestJS app.setGlobalPrefix('api')), and
+    # handle_path would strip that prefix before forwarding, causing every
+    # proxied request to 404 against the backend.
+    if [ -n "$API_UPSTREAM" ]; then
+        cat >> /etc/Caddyfile <<EOF
+
+    handle /api/* {
+        reverse_proxy ${API_UPSTREAM}
+    }
+EOF
+    fi
+
+    cat >> /etc/Caddyfile <<EOF
+
+    file_server
+
+    log {
+        output stdout
+        format ${LOGFORMAT:-json}
+        level ${LOGLEVEL:-INFO}
+    }
+}
+EOF
+}
+
+if [ -e "/etc/Caddyfile" ]; then
+    echo "Using bind-mounted /etc/Caddyfile as-is"
 else
-    rm -f /etc/Caddyfile.tpl
+    write_caddyfile
 fi
 
 write_runtime_config
 
 echo "Starting UI on port 80"
 echo "Logs output: ${LOGLEVEL:-INFO} (${LOGFORMAT:-json})"
+if [ -n "$API_UPSTREAM" ]; then
+    echo "Proxying /api/* to ${API_UPSTREAM}"
+fi
 
 exec caddy run --config /etc/Caddyfile
