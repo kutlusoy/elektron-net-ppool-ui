@@ -1,0 +1,4 @@
+# Shell scripts must keep LF line endings regardless of the checkout OS --
+# CRLF (Windows' git default, core.autocrlf=true) breaks /bin/sh at runtime
+# inside Linux Docker images (see docker/entrypoint.sh, Dockerfile comment).
+*.sh text eol=lf

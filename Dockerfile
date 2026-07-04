@@ -31,4 +31,12 @@ WORKDIR /var/www/html
 COPY --from=build /build/dist/elektron-net-pool-ui .
 COPY docker/entrypoint.sh /entrypoint.sh
 
+# Strip any CRLF line endings before they can break the shebang/heredocs --
+# checking this repo out on Windows (git's default core.autocrlf=true)
+# rewrites entrypoint.sh with \r\n, which COPY then bakes in byte-for-byte,
+# and /bin/sh chokes on the stray \r with cryptic "not found"/"unexpected
+# end of file" errors. Doing this in the image build makes it work
+# regardless of the host's git line-ending config.
+RUN sed -i 's/\r$//' /entrypoint.sh && chmod +x /entrypoint.sh
+
 CMD ["/bin/sh", "/entrypoint.sh"]
