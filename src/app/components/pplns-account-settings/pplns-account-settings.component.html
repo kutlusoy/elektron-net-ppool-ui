@@ -37,13 +37,13 @@
                 <span>Custom payout threshold</span>
                 <small>
                     Pay this address out once its own balance reaches this many
-                    sats, instead of the pool default
-                    ({{settings?.poolDefaultPayoutThresholdSats | number}} sats).
+                    lep, instead of the pool default
+                    ({{settings?.poolDefaultPayoutThresholdSats | number}} lep).
                 </small>
             </div>
         </div>
         <p-inputNumber *ngIf="useCustomThreshold" [(ngModel)]="customThresholdSats" [min]="1"
-            [showButtons]="false" suffix=" sats" [useGrouping]="true"></p-inputNumber>
+            [showButtons]="false" suffix=" lep" [useGrouping]="true"></p-inputNumber>
 
         <div class="setting-row">
             <p-inputSwitch [(ngModel)]="notifyOnPayout"></p-inputSwitch>

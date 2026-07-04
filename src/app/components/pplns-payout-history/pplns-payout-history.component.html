@@ -20,7 +20,7 @@
             <ng-template pTemplate="body" let-payout>
                 <tr>
                     <td data-label="Block" class="numeric-cell">{{payout.blockHeight}}</td>
-                    <td data-label="Amount" class="numeric-cell">{{payout.amountSats | number}} sats</td>
+                    <td data-label="Amount" class="numeric-cell">{{payout.amountSats | number}} lep</td>
                     <td data-label="Transaction">
                         <ng-container *ngIf="payout.txid; else noTxid">
                             <a *ngIf="explorerUrl(payout.txid) as url; else txidText" [href]="url" target="_blank"
