@@ -25,6 +25,7 @@ import { PplnsPoolInfoComponent } from './components/pplns-pool-info/pplns-pool-
 import { PplnsMinerStatusComponent } from './components/pplns-miner-status/pplns-miner-status.component';
 import { PplnsPayoutHistoryComponent } from './components/pplns-payout-history/pplns-payout-history.component';
 import { PoolModeBannerComponent } from './components/pool-mode-banner/pool-mode-banner.component';
+import { PplnsAccountSettingsComponent } from './components/pplns-account-settings/pplns-account-settings.component';
 
 
 
@@ -44,7 +45,8 @@ import { PoolModeBannerComponent } from './components/pool-mode-banner/pool-mode
     PplnsPoolInfoComponent,
     PplnsMinerStatusComponent,
     PplnsPayoutHistoryComponent,
-    PoolModeBannerComponent
+    PoolModeBannerComponent,
+    PplnsAccountSettingsComponent
   ],
   imports: [
     CommonModule,

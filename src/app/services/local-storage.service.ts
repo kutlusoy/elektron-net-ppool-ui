@@ -40,5 +40,19 @@ export class LocalStorageService {
 
   }
 
+  // Phase 2 miner login (concept doc §11): one JWT per address, namespaced
+  // so a browser that's logged into multiple payout addresses doesn't clobber
+  // its own tokens.
+  public getAuthToken(address: string): string | null {
+    return this.get(`AUTH_TOKEN_${address}`);
+  }
+
+  public setAuthToken(address: string, token: string): void {
+    this.set(`AUTH_TOKEN_${address}`, token);
+  }
+
+  public clearAuthToken(address: string): void {
+    this.remove(`AUTH_TOKEN_${address}`);
+  }
 
 }

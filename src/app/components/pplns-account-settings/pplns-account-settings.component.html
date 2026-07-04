@@ -1,0 +1,68 @@
+<div class="card account-settings-card">
+    <h5>Miner Account</h5>
+
+    <ng-container *ngIf="state === 'logged-out'">
+        <p>
+            Log in to set a custom payout threshold for this address or turn on
+            payout notifications. Logging in doesn't need a password -- you prove
+            you control this address by signing a one-time message with your own
+            wallet (Bitcoin Core <code>signmessage</code>, Electrum, Sparrow, or a
+            hardware wallet).
+        </p>
+        <button pButton type="button" label="Request login challenge" icon="pi pi-key"
+            [disabled]="busy" (click)="requestChallenge()"></button>
+    </ng-container>
+
+    <ng-container *ngIf="state === 'challenge-issued'">
+        <p>1. Sign the exact text below with the wallet that controls <strong>{{address}}</strong>:</p>
+        <div class="challenge-message-row">
+            <textarea pInputTextarea [rows]="5" [readonly]="true" [ngModel]="challengeMessage"></textarea>
+            <button pButton type="button" [icon]="copiedMessage ? 'pi pi-check' : 'pi pi-copy'"
+                class="p-button-text p-button-sm" (click)="copyMessage()"></button>
+        </div>
+        <p>2. Paste the base64 signature your wallet produced:</p>
+        <textarea pInputTextarea [rows]="3" [(ngModel)]="signatureInput" placeholder="Signature..."></textarea>
+        <div class="actions-row">
+            <button pButton type="button" label="Log in" icon="pi pi-sign-in" [disabled]="busy"
+                (click)="login()"></button>
+            <button pButton type="button" label="Cancel" class="p-button-text"
+                [disabled]="busy" (click)="state = 'logged-out'; challengeMessage = null"></button>
+        </div>
+    </ng-container>
+
+    <ng-container *ngIf="state === 'logged-in'">
+        <div class="setting-row">
+            <p-inputSwitch [(ngModel)]="useCustomThreshold"></p-inputSwitch>
+            <div class="setting-label">
+                <span>Custom payout threshold</span>
+                <small>
+                    Pay this address out once its own balance reaches this many
+                    sats, instead of the pool default
+                    ({{settings?.poolDefaultPayoutThresholdSats | number}} sats).
+                </small>
+            </div>
+        </div>
+        <p-inputNumber *ngIf="useCustomThreshold" [(ngModel)]="customThresholdSats" [min]="1"
+            [showButtons]="false" suffix=" sats" [useGrouping]="true"></p-inputNumber>
+
+        <div class="setting-row">
+            <p-inputSwitch [(ngModel)]="notifyOnPayout"></p-inputSwitch>
+            <div class="setting-label">
+                <span>Notify me on payout</span>
+                <small>
+                    Sends a Telegram message whenever a payout includes this
+                    address. Requires linking a chat first by messaging the pool's
+                    Telegram bot with <code>/subscribe {{address}}</code>.
+                </small>
+            </div>
+        </div>
+
+        <div class="actions-row">
+            <button pButton type="button" label="Save" icon="pi pi-save" [disabled]="busy" (click)="save()"></button>
+            <button pButton type="button" label="Log out" class="p-button-text" [disabled]="busy"
+                (click)="logout()"></button>
+        </div>
+    </ng-container>
+
+    <p class="error-message" *ngIf="error">{{error}}</p>
+</div>
