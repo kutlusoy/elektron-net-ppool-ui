@@ -23,8 +23,39 @@
     margin-bottom: 1rem;
 }
 
-.challenge-message-row textarea {
+.challenge-message-row textarea,
+.challenge-message-row input {
     flex: 1;
+}
+
+.login-option h6 {
+    color: var(--text-color);
+    margin: 0 0 0.5rem;
+}
+
+.login-option-divider {
+    color: var(--text-color-secondary);
+    margin: 1.5rem 0;
+    position: relative;
+    text-align: center;
+}
+
+.login-option-divider::before,
+.login-option-divider::after {
+    background: var(--surface-border);
+    content: '';
+    height: 1px;
+    position: absolute;
+    top: 50%;
+    width: calc(50% - 1.5rem);
+}
+
+.login-option-divider::before {
+    left: 0;
+}
+
+.login-option-divider::after {
+    right: 0;
 }
 
 .setting-row {
