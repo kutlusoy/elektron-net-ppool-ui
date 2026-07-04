@@ -11,11 +11,18 @@ export interface IAccountSettings {
   poolDefaultPayoutThresholdSats: number;
 }
 
-// Phase 2 (concept doc §11): signature-based login. There's no
-// username/password anywhere -- a miner proves ownership of an address by
-// signing a one-time challenge with their own wallet (Bitcoin Core
-// signmessage, Electrum, Sparrow, hardware wallets), see README §"Miner
-// account API" in elektron-net-ppool for the full flow this wraps.
+export interface IChallenge {
+  message: string;
+  onchain: { address: string; amountSats: number };
+}
+
+// Phase 2 (concept doc §11): two independent ways to prove address
+// ownership, both starting from the same challenge -- signing a message
+// with the wallet (Bitcoin Core signmessage, Electrum, Sparrow, hardware
+// wallets), or an on-chain self-send for wallets that can't sign a message
+// for their address (Elektron Net's own wallet included -- its signmessage
+// is P2PKH-only, doesn't work for SegWit/bech32 addresses). See README
+// §"Miner account API" in elektron-net-ppool for the full flow this wraps.
 @Injectable({
   providedIn: 'root'
 })
@@ -40,18 +47,27 @@ export class PplnsAuthService {
     this.localStorageService.clearAuthToken(address);
   }
 
-  public async requestChallenge(address: string): Promise<string> {
-    const response = await firstValueFrom(this.httpClient.post<{ message: string }>(
+  public async requestChallenge(address: string): Promise<IChallenge> {
+    return await firstValueFrom(this.httpClient.post<IChallenge>(
       `${this.appConfig.apiUrl}/api/auth/challenge`,
       { address },
     ));
-    return response.message;
   }
 
   public async login(address: string, signature: string): Promise<void> {
     const response = await firstValueFrom(this.httpClient.post<{ accessToken: string }>(
       `${this.appConfig.apiUrl}/api/auth/login`,
       { address, signature },
+    ));
+    this.localStorageService.setAuthToken(address, response.accessToken);
+  }
+
+  // Throws (typically 401 "not seen yet") if the self-send hasn't
+  // confirmed -- the caller is expected to let the user retry/poll.
+  public async loginOnChain(address: string): Promise<void> {
+    const response = await firstValueFrom(this.httpClient.post<{ accessToken: string }>(
+      `${this.appConfig.apiUrl}/api/auth/onchain-login`,
+      { address },
     ));
     this.localStorageService.setAuthToken(address, response.accessToken);
   }

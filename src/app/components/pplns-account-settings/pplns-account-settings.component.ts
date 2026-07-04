@@ -4,9 +4,10 @@ import { IAccountSettings, PplnsAuthService } from '../../services/pplns-auth.se
 
 type ViewState = 'logged-out' | 'challenge-issued' | 'logged-in';
 
-// Phase 2 (concept doc §11): signature-based login + per-miner account
-// settings, embedded in SettingsComponent (routed at /app/:address/settings,
-// so the address is already known from the route).
+// Phase 2 (concept doc §11): two independent login methods (signature or
+// on-chain proof) + per-miner account settings, embedded in
+// SettingsComponent (routed at /app/:address/settings, so the address is
+// already known from the route).
 @Component({
   selector: 'app-pplns-account-settings',
   templateUrl: './pplns-account-settings.component.html',
@@ -20,9 +21,11 @@ export class PplnsAccountSettingsComponent implements OnChanges {
   public busy = false;
   public error: string | null = null;
   public copiedMessage = false;
+  public copiedAmount = false;
 
   public challengeMessage: string | null = null;
   public signatureInput = '';
+  public onchainAmountSats: number | null = null;
 
   public settings: IAccountSettings | null = null;
   public useCustomThreshold = false;
@@ -41,7 +44,9 @@ export class PplnsAccountSettingsComponent implements OnChanges {
     this.error = null;
     this.busy = true;
     try {
-      this.challengeMessage = await this.pplnsAuthService.requestChallenge(this.address);
+      const challenge = await this.pplnsAuthService.requestChallenge(this.address);
+      this.challengeMessage = challenge.message;
+      this.onchainAmountSats = challenge.onchain.amountSats;
       this.signatureInput = '';
       this.state = 'challenge-issued';
     } catch (e) {
@@ -64,6 +69,22 @@ export class PplnsAccountSettingsComponent implements OnChanges {
       await this.loadSettings();
     } catch (e) {
       this.error = this.extractErrorMessage(e, 'Login failed -- check the signature and try again.');
+    } finally {
+      this.busy = false;
+    }
+  }
+
+  // Checks whether the self-send has confirmed yet. A 401 here just means
+  // "not seen yet" (or expired) -- surfaced as the normal error message so
+  // the user knows to wait and retry, not treated as a hard failure.
+  public async checkOnChainPayment(): Promise<void> {
+    this.error = null;
+    this.busy = true;
+    try {
+      await this.pplnsAuthService.loginOnChain(this.address);
+      await this.loadSettings();
+    } catch (e) {
+      this.error = this.extractErrorMessage(e, 'Could not verify the on-chain payment.');
     } finally {
       this.busy = false;
     }
@@ -97,16 +118,29 @@ export class PplnsAccountSettingsComponent implements OnChanges {
     if (this.challengeMessage == null) {
       return;
     }
-    const complete = () => {
+    this.copyText(this.challengeMessage, () => {
       this.copiedMessage = true;
       setTimeout(() => this.copiedMessage = false, 1500);
-    };
+    });
+  }
+
+  public copyOnChainAmount(): void {
+    if (this.onchainAmountSats == null) {
+      return;
+    }
+    this.copyText(String(this.onchainAmountSats), () => {
+      this.copiedAmount = true;
+      setTimeout(() => this.copiedAmount = false, 1500);
+    });
+  }
+
+  private copyText(value: string, complete: () => void): void {
     if (window.navigator?.clipboard != null) {
-      void window.navigator.clipboard.writeText(this.challengeMessage).then(complete, () => { });
+      void window.navigator.clipboard.writeText(value).then(complete, () => { });
       return;
     }
     const input = document.createElement('textarea');
-    input.value = this.challengeMessage;
+    input.value = value;
     input.setAttribute('readonly', 'true');
     input.style.position = 'fixed';
     input.style.opacity = '0';
@@ -124,6 +158,7 @@ export class PplnsAccountSettingsComponent implements OnChanges {
     this.error = null;
     this.challengeMessage = null;
     this.signatureInput = '';
+    this.onchainAmountSats = null;
     if (this.pplnsAuthService.isLoggedIn(this.address)) {
       void this.loadSettings();
     } else {

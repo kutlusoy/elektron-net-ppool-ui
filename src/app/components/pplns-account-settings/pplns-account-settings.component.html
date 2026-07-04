@@ -14,17 +14,48 @@
     </ng-container>
 
     <ng-container *ngIf="state === 'challenge-issued'">
-        <p>1. Sign the exact text below with the wallet that controls <strong>{{address}}</strong>:</p>
-        <div class="challenge-message-row">
-            <textarea pInputTextarea [rows]="5" [readonly]="true" [ngModel]="challengeMessage"></textarea>
-            <button pButton type="button" [icon]="copiedMessage ? 'pi pi-check' : 'pi pi-copy'"
-                class="p-button-text p-button-sm" (click)="copyMessage()"></button>
+        <div class="login-option">
+            <h6>Option A: sign a message</h6>
+            <p>1. Sign the exact text below with the wallet that controls <strong>{{address}}</strong>:</p>
+            <div class="challenge-message-row">
+                <textarea pInputTextarea [rows]="5" [readonly]="true" [ngModel]="challengeMessage"></textarea>
+                <button pButton type="button" [icon]="copiedMessage ? 'pi pi-check' : 'pi pi-copy'"
+                    class="p-button-text p-button-sm" (click)="copyMessage()"></button>
+            </div>
+            <p>2. Paste the base64 signature your wallet produced:</p>
+            <textarea pInputTextarea [rows]="3" [(ngModel)]="signatureInput" placeholder="Signature..."></textarea>
+            <div class="actions-row">
+                <button pButton type="button" label="Log in" icon="pi pi-sign-in" [disabled]="busy"
+                    (click)="login()"></button>
+            </div>
         </div>
-        <p>2. Paste the base64 signature your wallet produced:</p>
-        <textarea pInputTextarea [rows]="3" [(ngModel)]="signatureInput" placeholder="Signature..."></textarea>
+
+        <div class="login-option-divider">or</div>
+
+        <div class="login-option">
+            <h6>Option B: on-chain proof</h6>
+            <p>
+                Use this if your wallet can't sign a message for this address --
+                Elektron Net's own wallet included, since its message signing only
+                supports legacy (non-SegWit) addresses. Send yourself
+                (self-send -- same address as sender and recipient) exactly:
+            </p>
+            <div class="challenge-message-row">
+                <input pInputText type="text" readonly [ngModel]="(onchainAmountSats | number) + ' sats'">
+                <button pButton type="button" [icon]="copiedAmount ? 'pi pi-check' : 'pi pi-copy'"
+                    class="p-button-text p-button-sm" (click)="copyOnChainAmount()"></button>
+            </div>
+            <p>
+                from <strong>{{address}}</strong> to itself, using your wallet's
+                normal send screen. Once it has at least one confirmation:
+            </p>
+            <div class="actions-row">
+                <button pButton type="button" label="Check payment" icon="pi pi-refresh" [disabled]="busy"
+                    (click)="checkOnChainPayment()"></button>
+            </div>
+        </div>
+
         <div class="actions-row">
-            <button pButton type="button" label="Log in" icon="pi pi-sign-in" [disabled]="busy"
-                (click)="login()"></button>
             <button pButton type="button" label="Cancel" class="p-button-text"
                 [disabled]="busy" (click)="state = 'logged-out'; challengeMessage = null"></button>
         </div>
