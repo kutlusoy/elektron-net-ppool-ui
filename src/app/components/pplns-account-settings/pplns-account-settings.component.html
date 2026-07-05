@@ -41,7 +41,7 @@
                 (self-send -- same address as sender and recipient) exactly:
             </p>
             <div class="challenge-message-row">
-                <input pInputText type="text" readonly [ngModel]="(onchainAmountSats | number) + ' sats'">
+                <input pInputText type="text" readonly [ngModel]="(onchainAmountSats | number) + ' lep'">
                 <button pButton type="button" [icon]="copiedAmount ? 'pi pi-check' : 'pi pi-copy'"
                     class="p-button-text p-button-sm" (click)="copyOnChainAmount()"></button>
             </div>
