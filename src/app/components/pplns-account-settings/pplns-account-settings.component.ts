@@ -1,6 +1,8 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 
 import { IAccountSettings, PplnsAuthService } from '../../services/pplns-auth.service';
+import { PplnsService } from '../../services/pplns.service';
 
 type ViewState = 'logged-out' | 'challenge-issued' | 'logged-in';
 
@@ -13,7 +15,7 @@ type ViewState = 'logged-out' | 'challenge-issued' | 'logged-in';
   templateUrl: './pplns-account-settings.component.html',
   styleUrls: ['./pplns-account-settings.component.scss']
 })
-export class PplnsAccountSettingsComponent implements OnChanges {
+export class PplnsAccountSettingsComponent implements OnInit, OnChanges {
 
   @Input() address!: string;
 
@@ -26,13 +28,23 @@ export class PplnsAccountSettingsComponent implements OnChanges {
   public challengeMessage: string | null = null;
   public signatureInput = '';
   public onchainAmountSats: number | null = null;
+  public copiedUri = false;
 
   public settings: IAccountSettings | null = null;
   public useCustomThreshold = false;
   public customThresholdSats: number | null = null;
   public notifyOnPayout = false;
 
-  constructor(private pplnsAuthService: PplnsAuthService) { }
+  public telegramBotUsername: string | null = null;
+
+  constructor(
+    private pplnsAuthService: PplnsAuthService,
+    private pplnsService: PplnsService,
+  ) { }
+
+  ngOnInit(): void {
+    void this.loadTelegramInfo();
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['address'] && this.address) {
@@ -134,6 +146,30 @@ export class PplnsAccountSettingsComponent implements OnChanges {
     });
   }
 
+  // BIP21-style payment link (elek:<address>?amount=<ELEK>&label=...) so a
+  // wallet's "Open URI" feature (File > Open URI in the Elektron Net GUI
+  // wallet) can fill in the self-send address and exact amount in one paste,
+  // instead of the user copying the amount and typing the address by hand.
+  public get onchainPaymentUri(): string | null {
+    if (this.onchainAmountSats == null || !this.address) {
+      return null;
+    }
+    const amountElek = (this.onchainAmountSats / 1e8).toFixed(8);
+    const label = encodeURIComponent('Elektron Net PPLNS Pool Login');
+    return `elek:${this.address}?amount=${amountElek}&label=${label}`;
+  }
+
+  public copyOnChainUri(): void {
+    const uri = this.onchainPaymentUri;
+    if (uri == null) {
+      return;
+    }
+    this.copyText(uri, () => {
+      this.copiedUri = true;
+      setTimeout(() => this.copiedUri = false, 1500);
+    });
+  }
+
   private copyText(value: string, complete: () => void): void {
     if (window.navigator?.clipboard != null) {
       void window.navigator.clipboard.writeText(value).then(complete, () => { });
@@ -163,6 +199,19 @@ export class PplnsAccountSettingsComponent implements OnChanges {
       void this.loadSettings();
     } else {
       this.state = 'logged-out';
+    }
+  }
+
+  // Cosmetic only -- lets the settings page tell the miner which bot to
+  // message with /subscribe. Silently no-ops if the pool hasn't configured
+  // TELEGRAM_BOT_USERNAME (or the request fails); the notify-on-payout
+  // toggle still works via /subscribe either way.
+  private async loadTelegramInfo(): Promise<void> {
+    try {
+      const info = await firstValueFrom(this.pplnsService.getTelegramInfo());
+      this.telegramBotUsername = info.botUsername;
+    } catch {
+      this.telegramBotUsername = null;
     }
   }
 
