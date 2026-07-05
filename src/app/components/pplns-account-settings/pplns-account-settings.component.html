@@ -37,8 +37,21 @@
             <p>
                 Use this if your wallet can't sign a message for this address --
                 Elektron Net's own wallet included, since its message signing only
-                supports legacy (non-SegWit) addresses. Send yourself
-                (self-send -- same address as sender and recipient) exactly:
+                supports legacy (non-SegWit) addresses. Instead, send yourself
+                (self-send -- same address as sender and recipient) a payment for
+                exactly this address and amount. Copy the link below and paste it
+                into your wallet's <strong>File &gt; Open URI...</strong> dialog --
+                it fills in the address and amount for you:
+            </p>
+            <div class="challenge-message-row">
+                <input pInputText type="text" readonly [ngModel]="onchainPaymentUri">
+                <button pButton type="button" [icon]="copiedUri ? 'pi pi-check' : 'pi pi-copy'"
+                    class="p-button-text p-button-sm" (click)="copyOnChainUri()"></button>
+            </div>
+            <p>
+                <small>
+                    Wallet doesn't support <code>elek:</code> links? Send exactly
+                </small>
             </p>
             <div class="challenge-message-row">
                 <input pInputText type="text" readonly [ngModel]="(onchainAmountSats | number) + ' lep'">
@@ -46,9 +59,9 @@
                     class="p-button-text p-button-sm" (click)="copyOnChainAmount()"></button>
             </div>
             <p>
-                from <strong>{{address}}</strong> to itself, using your wallet's
-                normal send screen. Once it has at least one confirmation:
+                <small>from <strong>{{address}}</strong> to itself manually instead.</small>
             </p>
+            <p>Once the self-send has at least one confirmation:</p>
             <div class="actions-row">
                 <button pButton type="button" label="Check payment" icon="pi pi-refresh" [disabled]="busy"
                     (click)="checkOnChainPayment()"></button>
@@ -80,7 +93,14 @@
             <p-inputSwitch [(ngModel)]="notifyOnPayout"></p-inputSwitch>
             <div class="setting-label">
                 <span>Notify me on payout</span>
-                <small>
+                <small *ngIf="telegramBotUsername">
+                    Sends a Telegram message whenever a payout includes this
+                    address. Requires linking a chat first: open
+                    <a [href]="'https://t.me/' + telegramBotUsername" target="_blank"
+                        rel="noopener noreferrer">&#64;{{telegramBotUsername}}</a>
+                    and send <code>/subscribe {{address}}</code>.
+                </small>
+                <small *ngIf="!telegramBotUsername">
                     Sends a Telegram message whenever a payout includes this
                     address. Requires linking a chat first by messaging the pool's
                     Telegram bot with <code>/subscribe {{address}}</code>.

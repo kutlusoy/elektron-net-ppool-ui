@@ -30,6 +30,10 @@ export interface IFeeInfo {
   payoutIntervalMinutes: number;
 }
 
+export interface ITelegramInfo {
+  botUsername: string | null;
+}
+
 // Thin wrappers over the elektron-net-ppool backend's PPLNS endpoints
 // (concept doc §10.3). Kept separate from ClientService since these are
 // PPLNS-specific and don't exist on the solo pool's API.
@@ -57,5 +61,9 @@ export class PplnsService {
 
   public getFeeInfo(): Observable<IFeeInfo> {
     return this.httpClient.get<IFeeInfo>(`${this.appConfig.apiUrl}/api/pool/fee-info`);
+  }
+
+  public getTelegramInfo(): Observable<ITelegramInfo> {
+    return this.httpClient.get<ITelegramInfo>(`${this.appConfig.apiUrl}/api/pool/telegram-info`);
   }
 }
