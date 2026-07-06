@@ -7,7 +7,12 @@
     flex-wrap: wrap;
     font-size: 0.85rem;
     gap: 0.6rem;
-    margin-bottom: 1rem;
+    // Matches splash.component.scss's .card max-width so this banner lines
+    // up with the hero/round/chart/pplns-info cards below it instead of
+    // stretching full-width -- Angular's view encapsulation scopes that
+    // rule to splash's own template, so it can't be inherited from there.
+    max-width: 1024px;
+    margin: 0 auto 1rem;
     padding: 0.75rem 1rem;
 }
 
