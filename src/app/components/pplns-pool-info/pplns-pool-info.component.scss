@@ -1,5 +1,12 @@
 .pplns-info-card {
     padding: 1.35rem 1.5rem;
+    // Matches splash.component.scss's .card max-width -- Angular's view
+    // encapsulation scopes that rule to splash's own template, so it never
+    // reaches this child component even though it also uses the "card"
+    // class. Repeated here so this card lines up with the hero/round/chart
+    // cards instead of stretching full-width.
+    max-width: 1024px;
+    margin: 0 auto;
 }
 
 .pplns-info-header {
