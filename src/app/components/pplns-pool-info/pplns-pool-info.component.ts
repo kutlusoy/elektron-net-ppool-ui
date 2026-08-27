@@ -20,6 +20,8 @@ export class PplnsPoolInfoComponent {
     feePercent: number;
     minPayoutThresholdSats: number;
     payoutIntervalMinutes: number;
+    poolIdentityName: string | null;
+    poolIdentityUrl: string | null;
   }>;
 
   constructor(
@@ -27,9 +29,15 @@ export class PplnsPoolInfoComponent {
   ) {
     this.info$ = combineLatest([
       this.pplnsService.getPplnsWindowStats(),
-      this.pplnsService.getFeeInfo()
+      this.pplnsService.getFeeInfo(),
+      this.pplnsService.getPoolIdentityInfo()
     ]).pipe(
-      map(([windowStats, feeInfo]) => ({ ...windowStats, ...feeInfo })),
+      map(([windowStats, feeInfo, poolIdentity]) => ({
+        ...windowStats,
+        ...feeInfo,
+        poolIdentityName: poolIdentity.name,
+        poolIdentityUrl: poolIdentity.url,
+      })),
       shareReplay({ refCount: true, bufferSize: 1 })
     );
   }

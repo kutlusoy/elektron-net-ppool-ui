@@ -34,6 +34,15 @@ export interface ITelegramInfo {
   botUsername: string | null;
 }
 
+// Same values elektron-net-ppool's MiningJob.ts embeds on-chain as the
+// vout[3]/vout[4] OP_RETURN pool-identity outputs (doc-elektron/guideline-pool-identity-op-return.md
+// in that repo). Either field is null if the operator hasn't configured it,
+// in which case that coinbase output isn't produced at all.
+export interface IPoolIdentityInfo {
+  name: string | null;
+  url: string | null;
+}
+
 // Thin wrappers over the elektron-net-ppool backend's PPLNS endpoints
 // (concept doc §10.3). Kept separate from ClientService since these are
 // PPLNS-specific and don't exist on the solo pool's API.
@@ -65,5 +74,9 @@ export class PplnsService {
 
   public getTelegramInfo(): Observable<ITelegramInfo> {
     return this.httpClient.get<ITelegramInfo>(`${this.appConfig.apiUrl}/api/pool/telegram-info`);
+  }
+
+  public getPoolIdentityInfo(): Observable<IPoolIdentityInfo> {
+    return this.httpClient.get<IPoolIdentityInfo>(`${this.appConfig.apiUrl}/api/pool/identity`);
   }
 }

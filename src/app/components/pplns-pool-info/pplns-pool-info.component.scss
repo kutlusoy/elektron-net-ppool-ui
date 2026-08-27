@@ -52,6 +52,41 @@
     overflow-wrap: anywhere;
 }
 
+.pplns-identity-row {
+    border-top: 1px solid var(--surface-border);
+    margin-top: 1.25rem;
+    padding-top: 1.1rem;
+}
+
+.pplns-identity-row span {
+    color: var(--text-color-secondary);
+    display: block;
+    font-size: 0.82rem;
+}
+
+.pplns-identity-row strong {
+    color: var(--primary-color);
+    display: block;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0.35rem 0 0.15rem;
+    overflow-wrap: anywhere;
+}
+
+.pplns-identity-row a {
+    display: block;
+    font-size: 0.9rem;
+    overflow-wrap: anywhere;
+    word-break: break-all;
+}
+
+.pplns-identity-row small {
+    color: var(--text-color-secondary);
+    display: block;
+    font-size: 0.78rem;
+    margin-top: 0.35rem;
+}
+
 @media screen and (max-width: 960px) {
     .pplns-info-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
