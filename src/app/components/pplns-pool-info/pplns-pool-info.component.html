@@ -29,6 +29,13 @@
                 <small>Paid out every {{info.payoutIntervalMinutes}} min once reached</small>
             </div>
         </div>
+        <div class="pplns-identity-row" *ngIf="info.poolIdentityName || info.poolIdentityUrl">
+            <span>On-Chain Pool Identity</span>
+            <strong>{{info.poolIdentityName || 'Unnamed pool'}}</strong>
+            <a *ngIf="info.poolIdentityUrl" [href]="info.poolIdentityUrl" target="_blank" rel="noopener noreferrer">{{info.poolIdentityUrl}}</a>
+            <small>Embedded as a dedicated OP_RETURN output in every block this pool finds, alongside the UTXO
+                attestation and witness commitment - not the payout address.</small>
+        </div>
     </div>
 </ng-container>
 <ng-template #pplnsInfoLoading>
